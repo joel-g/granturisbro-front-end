@@ -2,19 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './CarList.css';
-
-const countryFlags = {
-    'Japan': '🇯🇵',
-    'Germany': '🇩🇪',
-    'United States': '🇺🇸',
-    'Italy': '🇮🇹',
-    'France': '🇫🇷',
-    'United Kingdom': '🇬🇧',
-    'Austria': '🇦🇹',
-    'South Korea': '🇰🇷',
-    'Czech': '🇨🇿',
-    'Sweden': '🇸🇪',
-  };
+import { API_BASE_URL, COUNTRY_FLAGS } from '../config';
 
 function CarList() {
   const [cars, setCars] = useState([]);
@@ -29,7 +17,7 @@ function CarList() {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get('https://gt7.joelguerra.dev/api/cars');
+        const response = await axios.get(`${API_BASE_URL}/api/cars`);
         setCars(response.data);
         setFilteredCars(response.data);
         
@@ -84,7 +72,7 @@ function CarList() {
           <option value="">All Countries</option>
           {countries.map(country => (
             <option key={country} value={country}>
-              {countryFlags[country] || ''} {country}
+              {COUNTRY_FLAGS[country] || ''} {country}
             </option>
           ))}
         </select>
@@ -102,7 +90,7 @@ function CarList() {
             <div className="car-info">
               <h2>{car.name}</h2>
               <p>{car.manufacturer}</p>
-              <p>{countryFlags[car.country] || ''} {car.country}</p>
+              <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>
             </div>
           </Link>
         ))}
