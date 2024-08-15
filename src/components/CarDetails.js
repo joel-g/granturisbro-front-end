@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import './CarDetails.css';
+
+const countryFlags = {
+  'Japan': '🇯🇵',
+  'Germany': '🇩🇪',
+  'United States': '🇺🇸',
+  'Italy': '🇮🇹',
+  'France': '🇫🇷',
+  'United Kingdom': '🇬🇧',
+  // Add more countries as needed
+};
 
 function CarDetails() {
   const [car, setCar] = useState(null);
@@ -9,42 +20,35 @@ function CarDetails() {
   const { id } = useParams();
 
   useEffect(() => {
-    axios.get(`https://gt7.joelguerra.dev/api/cars/${id}`)
-      .then(response => {
+    const fetchCar = async () => {
+      try {
+        const response = await axios.get(`http://gt7.joelguerra.dev/api/cars/${id}`);
         setCar(response.data);
         setLoading(false);
-      })
-      .catch(error => {
+      } catch (err) {
         setError('Error fetching car details');
         setLoading(false);
-      });
+      }
+    };
+
+    fetchCar();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!car) return <div>Car not found</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!car) return <div className="not-found">Car not found</div>;
 
   return (
-    <div>
-      <h1>{car.year} {car.manufacturer} {car.name}</h1>
-      <img src={car.image_url} alt={`${car.manufacturer} ${car.name}`} />
-      <p>Category: {car.category}</p>
-      <p>Country: {car.country}</p>
-      <p>Price: {car.price}</p>
-      <h2>Tags</h2>
-      <ul>
-        {car.tags && car.tags.map(tag => (
-          <li key={tag.id}>{tag.name}</li>
-        ))}
-      </ul>
-      <h2>Acquisition Options</h2>
-      <ul>
-        {car.acquisitionOptions && car.acquisitionOptions.map(option => (
-          <li key={option.id}>
-            {option.acquisition_method}: {option.price || option.cost}
-          </li>
-        ))}
-      </ul>
+    <div className="car-details-container">
+      <div className="car-details">
+        <div className="car-details-image" style={{backgroundImage: `url(${car.image_url || 'default-car-image.jpg'})`}}></div>
+        <div className="car-details-info">
+          <h1>{car.name}</h1>
+          <p><strong>Manufacturer:</strong> {car.manufacturer}</p>
+          <p><strong>Country:</strong> {countryFlags[car.country] || ''} {car.country}</p>
+          {/* Add more car details here as needed */}
+        </div>
+      </div>
     </div>
   );
 }

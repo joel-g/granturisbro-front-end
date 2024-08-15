@@ -1,0 +1,64 @@
+.car-details-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .car-details {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .car-details-image {
+    width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .car-details-info {
+    padding: 20px;
+  }
+  
+  .car-details-info h1 {
+    margin: 0 0 10px;
+    font-size: 1.8em;
+    color: #333;
+  }
+  
+  .car-details-info p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 1em;
+  }
+  
+  @media (max-width: 768px) {
+    .car-details-image {
+      height: 200px;
+    }
+  
+    .car-details-info h1 {
+      font-size: 1.5em;
+    }
+  
+    .car-details-info p {
+      font-size: 0.9em;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .car-details-image {
+      height: 150px;
+    }
+  
+    .car-details-info h1 {
+      font-size: 1.2em;
+    }
+  
+    .car-details-info p {
+      font-size: 0.8em;
+    }
+  }

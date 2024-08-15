@@ -85,39 +85,38 @@ function CarList() {
     if (error) return <div>{error}</div>;
   
     return (
-      <div className="car-list-container">
-        <h1>GT7 Car List</h1>
-        <div className="filters">
-          <select value={selectedCountry} onChange={handleCountryChange}>
-            <option value="">All Countries</option>
-            {countries.map(country => (
-              <option key={country} value={country}>
-                {countryFlags[country] || ''} {country}
-              </option>
+        <div className="car-list-container">
+          <h1>GT7 Car List</h1>
+          <div className="filters">
+            <select value={selectedCountry} onChange={handleCountryChange}>
+              <option value="">All Countries</option>
+              {countries.map(country => (
+                <option key={country} value={country}>
+                  {countryFlags[country] || ''} {country}
+                </option>
+              ))}
+            </select>
+            <select value={selectedManufacturer} onChange={handleManufacturerChange}>
+              <option value="">All Manufacturers</option>
+              {manufacturers.map(manufacturer => (
+                <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
+              ))}
+            </select>
+          </div>
+          <div className="car-grid">
+            {filteredCars.map(car => (
+              <Link to={`/car/${car.id}`} key={car.id} className="car-card">
+                <div className="car-image" style={{backgroundImage: `url(${car.image_url || 'default-car-image.jpg'})`}}></div>
+                <div className="car-info">
+                  <h2>{car.name}</h2>
+                  <p>{car.manufacturer}</p>
+                  <p>{countryFlags[car.country] || ''} {car.country}</p>
+                </div>
+              </Link>
             ))}
-          </select>
-          <select value={selectedManufacturer} onChange={handleManufacturerChange}>
-            <option value="">All Manufacturers</option>
-            {manufacturers.map(manufacturer => (
-              <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
-            ))}
-          </select>
-          <button onClick={handleClearFilters}>Clear Filters</button>
+          </div>
         </div>
-        <div className="car-grid">
-          {filteredCars.map(car => (
-            <Link to={`/car/${car.id}`} key={car.id} className="car-card">
-              <div className="car-image" style={{backgroundImage: `url(${car.image_url})`}}></div>
-              <div className="car-info">
-                <h2>{car.name}</h2>
-                <p>{car.manufacturer}</p>
-                <p>{countryFlags[car.country] || ''} {car.country}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  
-  export default CarList;
+      );
+    }
+    
+    export default CarList;
