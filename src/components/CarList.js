@@ -29,7 +29,7 @@ function CarList() {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get('YOUR_API_URL/api/cars');
+        const response = await axios.get('https://gt7.joelguerra.dev/api/cars');
         setCars(response.data);
         setFilteredCars(response.data);
         
