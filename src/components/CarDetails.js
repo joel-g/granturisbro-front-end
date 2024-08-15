@@ -4,14 +4,17 @@ import { useParams } from 'react-router-dom';
 import './CarDetails.css';
 
 const countryFlags = {
-  'Japan': '🇯🇵',
-  'Germany': '🇩🇪',
-  'United States': '🇺🇸',
-  'Italy': '🇮🇹',
-  'France': '🇫🇷',
-  'United Kingdom': '🇬🇧',
-  // Add more countries as needed
-};
+    'Japan': '🇯🇵',
+    'Germany': '🇩🇪',
+    'United States': '🇺🇸',
+    'Italy': '🇮🇹',
+    'France': '🇫🇷',
+    'United Kingdom': '🇬🇧',
+    'Austria': '🇦🇹',
+    'South Korea': '🇰🇷',
+    'Czech': '🇨🇿',
+    'Sweden': '🇸🇪',
+  };
 
 function CarDetails() {
   const [car, setCar] = useState(null);
