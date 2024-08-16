@@ -107,6 +107,7 @@ function CarList() {
               <div className="car-info">
                 <h2>{car.name}</h2>
                 <p>{car.manufacturer}</p>
+                <p>{car.year || ''}</p>
                 <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>
               </div>
             </Link>
