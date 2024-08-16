@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './CarList.css';
-import { API_BASE_URL, COUNTRY_FLAGS } from '../config';
+import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarList() {
     const [cars, setCars] = useState([]);
@@ -103,7 +103,7 @@ function CarList() {
         <div className="car-grid">
           {filteredCars.map(car => (
             <Link to={`/car/${car.id}`} key={car.id} className="car-card">
-              <div className="car-image" style={{backgroundImage: `url(${car.image_url || 'default-car-image.jpg'})`}}></div>
+              <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
               <div className="car-info">
                 <h2>{car.name}</h2>
                 <p>{car.manufacturer}</p>
