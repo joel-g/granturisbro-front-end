@@ -40,10 +40,13 @@ function CarDetails() {
             {car.country && <p><strong>Country:</strong> {COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
             {car.year && <p><strong>Year:</strong> {car.year}</p>}
             {car.hp && <p><strong>Horsepower:</strong> {car.hp}</p>}
+            {car.weight && <p><strong>Weight:</strong> {car.weight} lb</p>}
+            {car.weight && car.hp && <p><strong>Power-to-Weight Ratio:</strong> {(car.hp / car.weight).toFixed(2)} hp/lb</p>}
             {car.pp && <p><strong>Performance Points:</strong> {car.pp.toFixed(1)}</p>}
             {car.drivetrain && <p><strong>Drivetrain:</strong> {car.drivetrain}</p>}
             {car.aspiration && <p><strong>Aspiration:</strong> {car.aspiration}</p>}
             {car.availability && <p><strong>Availability:</strong> {car.availability}</p>}
+            {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
           </div>
         </div>
       </div>
