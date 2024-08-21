@@ -54,13 +54,7 @@ function CarList() {
                 filtered = filtered.filter(car => car.manufacturer === selectedManufacturer);
             }
             if (selectedAvailability) {
-                if (selectedAvailability === 'Invite Only') {
-                    filtered = filtered.filter(car => 
-                        car.availability === 'Invite Only' || car.availability === 'Brand Central'
-                    );
-                } else {
-                    filtered = filtered.filter(car => car.availability === selectedAvailability);
-                }
+                filtered = filtered.filter(car => car.availability === selectedAvailability);
             }
             if (selectedCategory) {
                 filtered = filtered.filter(car => car.category === selectedCategory);
@@ -163,7 +157,7 @@ function CarList() {
                         <option value="Brand Central">Brand Central</option>
                         <option value="Used Car Dealership">Used Car Dealership</option>
                         <option value="Legendary Dealership">Legendary Dealership</option>
-                        <option value="Invite Only">Invite Only</option>
+                        <option value="Invitation Only">Invitation Only</option>
                         <option value="Gift">Gift</option>
                     </select>
                     <select 
