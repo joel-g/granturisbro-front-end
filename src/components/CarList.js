@@ -106,15 +106,21 @@ function CarList() {
               <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
               <div className="car-info">
                 <h2>{car.name}</h2>
-                <p>{car.manufacturer}</p>
-                <p>{car.year || ''}</p>
-                <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>
+                {car.manufacturer && <p>{car.manufacturer}</p>}
+                {car.year && <p>{car.year}</p>}
+                {car.country && <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
+                <div className="car-specs">
+                  {car.hp && <p><strong>HP:</strong> {car.hp}</p>}
+                  {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
+                  {car.drivetrain && <p><strong>Drivetrain:</strong> {car.drivetrain}</p>}
+                  {car.aspiration && <p><strong>Aspiration:</strong> {car.aspiration}</p>}
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </div>
     );
-  }
+}
   
   export default CarList;
