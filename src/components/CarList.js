@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './CarList.css';
@@ -22,6 +22,19 @@ function CarList() {
 
     const navigate = useNavigate();
     const location = useLocation();
+
+    const updateURL = useCallback(() => {
+        const params = new URLSearchParams();
+        if (selectedCountry) params.append('country', selectedCountry);
+        if (selectedManufacturer) params.append('manufacturer', selectedManufacturer);
+        if (selectedAvailability) params.append('availability', selectedAvailability);
+        if (selectedCategory) params.append('category', selectedCategory);
+        if (searchTerm) params.append('search', searchTerm);
+        if (sortBy) params.append('sortBy', sortBy);
+        if (sortOrder) params.append('sortOrder', sortOrder);
+
+        navigate(`?${params.toString()}`, { replace: true });
+    }, [navigate, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder]);
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -92,20 +105,7 @@ function CarList() {
 
         applyFilters();
         updateURL();
-    }, [cars, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder]);
-
-    const updateURL = () => {
-        const params = new URLSearchParams();
-        if (selectedCountry) params.append('country', selectedCountry);
-        if (selectedManufacturer) params.append('manufacturer', selectedManufacturer);
-        if (selectedAvailability) params.append('availability', selectedAvailability);
-        if (selectedCategory) params.append('category', selectedCategory);
-        if (searchTerm) params.append('search', searchTerm);
-        if (sortBy) params.append('sortBy', sortBy);
-        if (sortOrder) params.append('sortOrder', sortOrder);
-
-        navigate(`?${params.toString()}`, { replace: true });
-    };
+    }, [cars, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder, updateURL]);
 
     const handleCountryChange = (e) => {
         setSelectedCountry(e.target.value);
