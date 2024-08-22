@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './CarList.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
@@ -20,12 +20,14 @@ function CarList() {
     const [sortBy, setSortBy] = useState('');
     const [sortOrder, setSortOrder] = useState('asc');
 
+    const navigate = useNavigate();
+    const location = useLocation();
+
     useEffect(() => {
         const fetchCars = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/cars`);
                 setCars(response.data);
-                setFilteredCars(response.data);
                 
                 const uniqueCountries = [...new Set(response.data.map(car => car.country))].sort();
                 const uniqueManufacturers = [...new Set(response.data.map(car => car.manufacturer))].sort();
@@ -43,6 +45,17 @@ function CarList() {
 
         fetchCars();
     }, []);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setSelectedCountry(params.get('country') || '');
+        setSelectedManufacturer(params.get('manufacturer') || '');
+        setSelectedAvailability(params.get('availability') || '');
+        setSelectedCategory(params.get('category') || '');
+        setSearchTerm(params.get('search') || '');
+        setSortBy(params.get('sortBy') || '');
+        setSortOrder(params.get('sortOrder') || 'asc');
+    }, [location]);
 
     useEffect(() => {
         const applyFilters = () => {
@@ -65,7 +78,6 @@ function CarList() {
                 );
             }
             
-            // Apply sorting
             if (sortBy) {
                 filtered = filtered.filter(car => car[sortBy] != null);
                 filtered.sort((a, b) => {
@@ -79,16 +91,30 @@ function CarList() {
         };
 
         applyFilters();
+        updateURL();
     }, [cars, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder]);
 
+    const updateURL = () => {
+        const params = new URLSearchParams();
+        if (selectedCountry) params.append('country', selectedCountry);
+        if (selectedManufacturer) params.append('manufacturer', selectedManufacturer);
+        if (selectedAvailability) params.append('availability', selectedAvailability);
+        if (selectedCategory) params.append('category', selectedCategory);
+        if (searchTerm) params.append('search', searchTerm);
+        if (sortBy) params.append('sortBy', sortBy);
+        if (sortOrder) params.append('sortOrder', sortOrder);
+
+        navigate(`?${params.toString()}`, { replace: true });
+    };
+
     const handleCountryChange = (e) => {
-      setSelectedCountry(e.target.value);
-      setSelectedManufacturer('');
+        setSelectedCountry(e.target.value);
+        setSelectedManufacturer('');
     };
   
     const handleManufacturerChange = (e) => {
-      setSelectedManufacturer(e.target.value);
-      setSelectedCountry('');
+        setSelectedManufacturer(e.target.value);
+        setSelectedCountry('');
     };
 
     const handleAvailabilityChange = (e) => {
@@ -117,6 +143,7 @@ function CarList() {
         setSearchTerm('');
         setSortBy('');
         setSortOrder('asc');
+        navigate('', { replace: true });
     };
 
     if (loading) return <div className="loading">Loading...</div>;
