@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import './CarList.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
@@ -12,29 +12,30 @@ function CarList() {
     const [countries, setCountries] = useState([]);
     const [manufacturers, setManufacturers] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [selectedCountry, setSelectedCountry] = useState('');
-    const [selectedManufacturer, setSelectedManufacturer] = useState('');
-    const [selectedAvailability, setSelectedAvailability] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('');
-    const [sortOrder, setSortOrder] = useState('asc');
 
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
 
+    const getParamValue = (param) => searchParams.get(param) || '';
+
+    const [filters, setFilters] = useState({
+        country: getParamValue('country'),
+        manufacturer: getParamValue('manufacturer'),
+        availability: getParamValue('availability'),
+        category: getParamValue('category'),
+        search: getParamValue('search'),
+        sortBy: getParamValue('sortBy'),
+        sortOrder: getParamValue('sortOrder') || 'asc'
+    });
+
     const updateURL = useCallback(() => {
         const params = new URLSearchParams();
-        if (selectedCountry) params.append('country', selectedCountry);
-        if (selectedManufacturer) params.append('manufacturer', selectedManufacturer);
-        if (selectedAvailability) params.append('availability', selectedAvailability);
-        if (selectedCategory) params.append('category', selectedCategory);
-        if (searchTerm) params.append('search', searchTerm);
-        if (sortBy) params.append('sortBy', sortBy);
-        if (sortOrder) params.append('sortOrder', sortOrder);
-
-        navigate(`?${params.toString()}`, { replace: true });
-    }, [navigate, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder]);
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value) params.append(key, value);
+        });
+        setSearchParams(params);
+    }, [filters, setSearchParams]);
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -60,42 +61,31 @@ function CarList() {
     }, []);
 
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        setSelectedCountry(params.get('country') || '');
-        setSelectedManufacturer(params.get('manufacturer') || '');
-        setSelectedAvailability(params.get('availability') || '');
-        setSelectedCategory(params.get('category') || '');
-        setSearchTerm(params.get('search') || '');
-        setSortBy(params.get('sortBy') || '');
-        setSortOrder(params.get('sortOrder') || 'asc');
-    }, [location]);
-
-    useEffect(() => {
         const applyFilters = () => {
             let filtered = cars;
-            if (selectedCountry) {
-                filtered = filtered.filter(car => car.country === selectedCountry);
+            if (filters.country) {
+                filtered = filtered.filter(car => car.country === filters.country);
             }
-            if (selectedManufacturer) {
-                filtered = filtered.filter(car => car.manufacturer === selectedManufacturer);
+            if (filters.manufacturer) {
+                filtered = filtered.filter(car => car.manufacturer === filters.manufacturer);
             }
-            if (selectedAvailability) {
-                filtered = filtered.filter(car => car.availability === selectedAvailability);
+            if (filters.availability) {
+                filtered = filtered.filter(car => car.availability === filters.availability);
             }
-            if (selectedCategory) {
-                filtered = filtered.filter(car => car.category === selectedCategory);
+            if (filters.category) {
+                filtered = filtered.filter(car => car.category === filters.category);
             }
-            if (searchTerm) {
+            if (filters.search) {
                 filtered = filtered.filter(car => 
-                    car.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    car.name.toLowerCase().includes(filters.search.toLowerCase())
                 );
             }
             
-            if (sortBy) {
-                filtered = filtered.filter(car => car[sortBy] != null);
+            if (filters.sortBy) {
+                filtered = filtered.filter(car => car[filters.sortBy] != null);
                 filtered.sort((a, b) => {
-                    if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
-                    if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
+                    if (a[filters.sortBy] < b[filters.sortBy]) return filters.sortOrder === 'asc' ? -1 : 1;
+                    if (a[filters.sortBy] > b[filters.sortBy]) return filters.sortOrder === 'asc' ? 1 : -1;
                     return 0;
                 });
             }
@@ -105,44 +95,34 @@ function CarList() {
 
         applyFilters();
         updateURL();
-    }, [cars, selectedCountry, selectedManufacturer, selectedAvailability, selectedCategory, searchTerm, sortBy, sortOrder, updateURL]);
+    }, [cars, filters, updateURL]);
 
-    const handleCountryChange = (e) => {
-        setSelectedCountry(e.target.value);
-        setSelectedManufacturer('');
-    };
-  
-    const handleManufacturerChange = (e) => {
-        setSelectedManufacturer(e.target.value);
-        setSelectedCountry('');
-    };
-
-    const handleAvailabilityChange = (e) => {
-        setSelectedAvailability(e.target.value);
-    };
-
-    const handleCategoryChange = (e) => {
-        setSelectedCategory(e.target.value);
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
+    const handleFilterChange = (filterName, value) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [filterName]: value
+        }));
     };
 
     const handleSortChange = (e) => {
         const [newSortBy, newSortOrder] = e.target.value.split('-');
-        setSortBy(newSortBy);
-        setSortOrder(newSortOrder);
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            sortBy: newSortBy,
+            sortOrder: newSortOrder
+        }));
     };
 
     const clearFilters = () => {
-        setSelectedCountry('');
-        setSelectedManufacturer('');
-        setSelectedAvailability('');
-        setSelectedCategory('');
-        setSearchTerm('');
-        setSortBy('');
-        setSortOrder('asc');
+        setFilters({
+            country: '',
+            manufacturer: '',
+            availability: '',
+            category: '',
+            search: '',
+            sortBy: '',
+            sortOrder: 'asc'
+        });
         navigate('', { replace: true });
     };
 
@@ -157,17 +137,23 @@ function CarList() {
                     <input
                         type="text"
                         placeholder="Search car name..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
+                        value={filters.search}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="search-input"
                     />
-                    <select value={selectedManufacturer} onChange={handleManufacturerChange}>
+                    <select 
+                        value={filters.manufacturer} 
+                        onChange={(e) => handleFilterChange('manufacturer', e.target.value)}
+                    >
                         <option value="">All Manufacturers</option>
                         {manufacturers.map(manufacturer => (
                             <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
                         ))}
                     </select>
-                    <select value={selectedCountry} onChange={handleCountryChange}>
+                    <select 
+                        value={filters.country} 
+                        onChange={(e) => handleFilterChange('country', e.target.value)}
+                    >
                         <option value="">All Countries</option>
                         {countries.map(country => (
                             <option key={country} value={country}>
@@ -176,8 +162,8 @@ function CarList() {
                         ))}
                     </select>
                     <select 
-                        value={selectedAvailability} 
-                        onChange={handleAvailabilityChange}
+                        value={filters.availability} 
+                        onChange={(e) => handleFilterChange('availability', e.target.value)}
                         className="availability-select"
                     >
                         <option value="">All Availabilities</option>
@@ -188,8 +174,8 @@ function CarList() {
                         <option value="Gift">Gift</option>
                     </select>
                     <select 
-                        value={selectedCategory} 
-                        onChange={handleCategoryChange}
+                        value={filters.category} 
+                        onChange={(e) => handleFilterChange('category', e.target.value)}
                         className="category-select"
                     >
                         <option value="">All Categories</option>
@@ -197,7 +183,7 @@ function CarList() {
                             <option key={category} value={category}>{category}</option>
                         ))}
                     </select>
-                    <select onChange={handleSortChange} value={`${sortBy}-${sortOrder}`}>
+                    <select onChange={handleSortChange} value={`${filters.sortBy}-${filters.sortOrder}`}>
                         <option value="">Sort by...</option>
                         <option value="hp-asc">HP (Low to High)</option>
                         <option value="hp-desc">HP (High to Low)</option>
