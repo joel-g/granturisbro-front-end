@@ -41,11 +41,11 @@ function CarList() {
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/cars`);
                 setCars(response.data);
-
+                
                 const uniqueCountries = [...new Set(response.data.map(car => car.country))].sort();
                 const uniqueManufacturers = [...new Set(response.data.map(car => car.manufacturer))].sort();
                 const uniqueCategories = [...new Set(response.data.map(car => car.category))].sort();
-
+                
                 setCountries(uniqueCountries);
                 setManufacturers(uniqueManufacturers);
                 setCategories(uniqueCategories);
@@ -75,11 +75,11 @@ function CarList() {
                 filtered = filtered.filter(car => car.category === filters.category);
             }
             if (filters.search) {
-                filtered = filtered.filter(car =>
+                filtered = filtered.filter(car => 
                     car.name.toLowerCase().includes(filters.search.toLowerCase())
                 );
             }
-
+            
             if (filters.sortBy) {
                 filtered = filtered.filter(car => car[filters.sortBy] != null);
                 filtered.sort((a, b) => {
@@ -88,7 +88,7 @@ function CarList() {
                     return 0;
                 });
             }
-
+            
             setFilteredCars(filtered);
         };
 
@@ -97,10 +97,18 @@ function CarList() {
     }, [cars, filters, updateURL]);
 
     const handleFilterChange = (filterName, value) => {
-        setFilters(prevFilters => ({
-            ...prevFilters,
-            [filterName]: value
-        }));
+        setFilters(prevFilters => {
+            const newFilters = { ...prevFilters, [filterName]: value };
+            
+            // Make country and manufacturer mutually exclusive
+            if (filterName === 'country' && value !== '') {
+                newFilters.manufacturer = '';
+            } else if (filterName === 'manufacturer' && value !== '') {
+                newFilters.country = '';
+            }
+            
+            return newFilters;
+        });
     };
 
     const handleSortChange = (e) => {
@@ -130,7 +138,9 @@ function CarList() {
 
     return (
         <div className="car-list-container">
-            <h1>GT7 Car List</h1>
+            <div className="header">
+                <h1>GT7 Car List</h1>
+            </div>
             <div className="filters">
                 <div className="filters-row">
                     <input
@@ -140,8 +150,8 @@ function CarList() {
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="search-input"
                     />
-                    <select
-                        value={filters.manufacturer}
+                    <select 
+                        value={filters.manufacturer} 
                         onChange={(e) => handleFilterChange('manufacturer', e.target.value)}
                     >
                         <option value="">All Manufacturers</option>
@@ -149,8 +159,8 @@ function CarList() {
                             <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
                         ))}
                     </select>
-                    <select
-                        value={filters.country}
+                    <select 
+                        value={filters.country} 
                         onChange={(e) => handleFilterChange('country', e.target.value)}
                     >
                         <option value="">All Countries</option>
@@ -160,8 +170,8 @@ function CarList() {
                             </option>
                         ))}
                     </select>
-                    <select
-                        value={filters.availability}
+                    <select 
+                        value={filters.availability} 
                         onChange={(e) => handleFilterChange('availability', e.target.value)}
                         className="availability-select"
                     >
@@ -172,8 +182,8 @@ function CarList() {
                         <option value="Invitation Only">Invitation Only</option>
                         <option value="Gift">Gift</option>
                     </select>
-                    <select
-                        value={filters.category}
+                    <select 
+                        value={filters.category} 
                         onChange={(e) => handleFilterChange('category', e.target.value)}
                         className="category-select"
                     >
@@ -201,7 +211,7 @@ function CarList() {
             <div className="car-grid">
                 {filteredCars.map(car => (
                     <Link to={`/car/${car.id}`} key={car.id} className="car-card">
-                        <div className="car-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})` }}></div>
+                        <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
                         <div className="car-info">
                             <h2>{car.name}</h2>
                             {car.manufacturer && <p>{car.manufacturer}</p>}
