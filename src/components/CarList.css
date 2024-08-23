@@ -117,45 +117,50 @@ h1 {
   margin: 0;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .filters-row {
-      flex-direction: column;
-      align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 
   .filters-row > * {
-      width: 100%;
+    min-width: 0;
+  }
+
+  .filters-row .search-input {
+    grid-column: 1 / -1;
+  }
+
+  .filters-row .clear-filters-btn {
+    font-size: 14px;
+    padding: 6px 10px;
+    height: auto;
   }
 
   .car-grid {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .car-grid {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
 
 @media (max-width: 480px) {
-  .car-grid {
-      grid-template-columns: repeat(2, 1fr);
+  h1 {
+    font-size: 1.5em;
   }
 
-  h1 {
-      font-size: 1.5em;
+  .car-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .car-info h2 {
-      font-size: 1em;
+    font-size: 1em;
   }
 
   .car-info p {
-      font-size: 0.8em;
+    font-size: 0.8em;
   }
 
   .car-specs {
-      font-size: 0.7em;
+    font-size: 0.7em;
   }
 }
