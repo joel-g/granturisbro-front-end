@@ -139,7 +139,7 @@ function CarList() {
     return (
         <div className="car-list-container">
             <div className="header">
-                <h1>GT7 Car List</h1>
+            <Link to="/" className="home-link">GT7 Car List</Link>
             </div>
             <div className="filters">
                 <div className="filters-row">
