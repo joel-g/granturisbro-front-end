@@ -246,8 +246,7 @@ function CarList() {
                             <div className="car-specs">
                                 {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
                                 {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
-                                {car.drivetrain && <p><strong>Drivetrain:</strong> {car.drivetrain}</p>}
-                                {car.aspiration && <p><strong>Aspiration:</strong> {car.aspiration}</p>}
+                                {car.weight && <p><strong>Weight:</strong> {car.weight} lb</p>}
                             </div>
                             {car.reward_from && (
                                 <span 
