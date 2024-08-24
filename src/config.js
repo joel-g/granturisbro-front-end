@@ -1,6 +1,6 @@
 // src/config.js
-const API_BASE_URL = 'https://api.granturisbro.dev';
-const IMAGES_BASE_URL = 'https://images.granturisbro.dev';
+const API_BASE_URL = 'https://api.granturisbro.com';
+const IMAGES_BASE_URL = 'https://images.granturisbro.com';
 
 const COUNTRY_FLAGS = {
     'Japan': '🇯🇵',
