@@ -1,6 +1,6 @@
 // src/config.js
-const API_BASE_URL = 'https://gt7.joelguerra.dev';
-const IMAGES_BASE_URL = 'https://gt-images.joelguerra.dev';
+const API_BASE_URL = 'https://api.granturisbro.dev';
+const IMAGES_BASE_URL = 'https://images.granturisbro.dev';
 
 const COUNTRY_FLAGS = {
     'Japan': '🇯🇵',
