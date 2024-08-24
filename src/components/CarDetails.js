@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import './CarDetails.css';
-import { API_BASE_URL, COUNTRY_FLAGS } from '../config';
+import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarDetails() {
   const [car, setCar] = useState(null);
@@ -69,7 +69,7 @@ function CarDetails() {
   return (
     <div className="car-details-container">
       <div className="car-details">
-        <div className="car-details-image" style={{backgroundImage: `url(${car.image_url || 'default-car-image.jpg'})`}}></div>
+        <div className="car-details-image" style={{backgroundImage: `url(${IMAGES_BASE_URL + "/large/" + car.image_url || 'default-car-image.jpg'})`}}></div>
         <div className="car-details-info">
           <h1>{car.name}</h1>
           <div className="car-details-grid">
