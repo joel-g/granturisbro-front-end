@@ -177,13 +177,32 @@ h1 {
 
 @media (max-width: 768px) {
   .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-  .home-link {
-    margin-bottom: 10px;
-  }
+.home-link {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: bold;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.home-link:hover {
+    color: #2980b9;
+}
+
+.twitter-link {
+    color: #1DA1F2;
+    transition: color 0.3s ease;
+}
+
+.twitter-link:hover {
+    color: #0c85d0;
+}
 
   .filters-row {
     display: grid;
