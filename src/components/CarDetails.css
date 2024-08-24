@@ -103,3 +103,21 @@
     font-size: 1em;
   }
 }
+
+.footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid #eaeaea;
+}
+
+.footer a {
+  margin: 0 10px;
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
