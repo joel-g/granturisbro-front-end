@@ -25,6 +25,43 @@ function CarDetails() {
     fetchCar();
   }, [id]);
 
+  const formatRewardInfo = (rewardFrom) => {
+    if (!rewardFrom) return null;
+    const [type, ...details] = rewardFrom.split(';');
+    
+    const capitalizeWords = (str) => {
+      return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    };
+
+    const formatType = (type) => {
+      return type === 'menubook' ? 'Menu Book' : capitalizeWords(type);
+    };
+    
+    const getEmojiForMedal = (detail) => {
+      if (detail.toLowerCase().includes('bronze')) return '🥉';
+      if (detail.toLowerCase().includes('gold')) return '🥇';
+      return '';
+    };
+
+    const formatDetail = (detail) => {
+      const emoji = getEmojiForMedal(detail);
+      const cleanDetail = detail.replace(/(bronze|gold)/i, '').trim();
+      return `${cleanDetail}${emoji}`.trim();
+    };
+
+    return (
+      <div className="reward-info-box">
+        <h3>Reward Information</h3>
+        <p><strong>Reward Type:</strong> {formatType(type)}</p>
+        {details.length > 0 && (
+          <p>
+            <strong>Details:</strong> {details.map(formatDetail).join(' ')}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!car) return <div className="not-found">Car not found</div>;
@@ -50,6 +87,7 @@ function CarDetails() {
           </div>
         </div>
       </div>
+      {car.reward_from && formatRewardInfo(car.reward_from)}
     </div>
   );
 }

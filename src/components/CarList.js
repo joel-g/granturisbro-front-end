@@ -25,7 +25,8 @@ function CarList() {
         category: getParamValue('category'),
         search: getParamValue('search'),
         sortBy: getParamValue('sortBy'),
-        sortOrder: getParamValue('sortOrder') || 'asc'
+        sortOrder: getParamValue('sortOrder') || 'asc',
+        reward: getParamValue('reward')
     });
 
     const updateURL = useCallback(() => {
@@ -79,6 +80,20 @@ function CarList() {
                     car.name.toLowerCase().includes(filters.search.toLowerCase())
                 );
             }
+            if (filters.reward) {
+                switch (filters.reward) {
+                    case 'not_available':
+                        filtered = filtered.filter(car => !car.reward_from);
+                        break;
+                    case 'any_reward':
+                        filtered = filtered.filter(car => car.reward_from);
+                        break;
+                    default:
+                        filtered = filtered.filter(car => 
+                            car.reward_from && car.reward_from.split(';')[0] === filters.reward
+                        );
+                }
+            }
             
             if (filters.sortBy) {
                 filtered = filtered.filter(car => car[filters.sortBy] != null);
@@ -128,7 +143,8 @@ function CarList() {
             category: '',
             search: '',
             sortBy: '',
-            sortOrder: 'asc'
+            sortOrder: 'asc',
+            reward: ''
         });
         navigate('', { replace: true });
     };
@@ -139,7 +155,7 @@ function CarList() {
     return (
         <div className="car-list-container">
             <div className="header">
-            <Link to="/" className="home-link">GT7 Car List</Link>
+                <Link to="/" className="home-link">GT7 Car List</Link>
             </div>
             <div className="filters">
                 <div className="filters-row">
@@ -192,10 +208,20 @@ function CarList() {
                             <option key={category} value={category}>{category}</option>
                         ))}
                     </select>
+                    <select 
+                        value={filters.reward} 
+                        onChange={(e) => handleFilterChange('reward', e.target.value)}
+                        className="reward-select"
+                    >
+                        <option value="">All Rewards</option>
+                        <option value="license">License</option>
+                        <option value="mission">Mission</option>
+                        <option value="menubook">Menu Book</option>
+                        <option value="any_reward">Any Reward Type</option>
+                        <option value="not_available">Not Available from Reward</option>
+                    </select>
                     <select onChange={handleSortChange} value={`${filters.sortBy}-${filters.sortOrder}`}>
                         <option value="">Sort by...</option>
-                        <option value="hp-asc">HP (Low to High)</option>
-                        <option value="hp-desc">HP (High to Low)</option>
                         <option value="pp-asc">PP (Low to High)</option>
                         <option value="pp-desc">PP (High to Low)</option>
                         <option value="year-asc">Year (Old to New)</option>
@@ -218,11 +244,19 @@ function CarList() {
                             {car.year && <p>{car.year}</p>}
                             {car.country && <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
                             <div className="car-specs">
-                                {car.hp && <p><strong>HP:</strong> {car.hp}</p>}
+                                {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
                                 {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
                                 {car.drivetrain && <p><strong>Drivetrain:</strong> {car.drivetrain}</p>}
                                 {car.aspiration && <p><strong>Aspiration:</strong> {car.aspiration}</p>}
                             </div>
+                            {car.reward_from && (
+                                <span 
+                                    className="reward-indicator" 
+                                    title="This car can be won as a reward"
+                                >
+                                    🏆
+                                </span>
+                            )}
                         </div>
                     </Link>
                 ))}

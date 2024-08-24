@@ -96,6 +96,7 @@ h1 {
   transition: transform 0.3s ease;
   text-decoration: none;
   color: inherit;
+  position: relative;
 }
 
 .car-card:hover {
@@ -107,6 +108,43 @@ h1 {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.car-info {
+  padding: 12px;
+  position: relative;
+}
+
+.car-info h2 {
+  margin: 0 0 8px;
+  font-size: 1.1em;
+  color: #333;
+}
+
+.car-info p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 0.85em;
+}
+
+.car-specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 0.75em;
+}
+
+.car-specs p {
+  margin: 0;
+}
+
+.reward-indicator {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 0.9em; /* Reduced from 1.2em to make it smaller */
+  cursor: help; /* Changes cursor to indicate additional information is available */
 }
 
 .car-info {
