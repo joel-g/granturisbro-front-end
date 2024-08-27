@@ -8,16 +8,27 @@ const changelogData = [
         changes: [
             'Added dark mode support',
             'Improved reward indicators on car list (gold/bronze medals)',
-            'Fixed background color issues in dark mode',
             'Added changelog to keep users informed about updates'
         ]
     },
     {
-        date: '2024-08-19',
+        date: '2024-08-24',
+        changes: [
+            'Added sorting by reward type and reward details (Menu, Mission, License, etc.)',
+            'Added high resolution images on car details pages.',
+        ]
+    },
+    {
+        date: '2024-08-22',
+        changes: [
+            'Filtered lists are now preserved when navigating back to the car list and sharing links.',
+        ]
+    },
+    {
+        date: '2024-08-15',
         changes: [
             'Initial release of GT7 Car List app',
             'Added car filtering and sorting functionality',
-            'Implemented responsive design for mobile devices'
         ]
     }
     // Add more changelog entries as needed
