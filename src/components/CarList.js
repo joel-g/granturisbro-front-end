@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import Changelog from './Changelog'; 
 import './CarList.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
@@ -259,6 +260,7 @@ function CarList() {
                     </Link>
                 ))}
             </div>
+            <Changelog />
             <footer className="footer">
                 <Link to="/privacy-policy">Privacy Policy</Link>
                 <Link to="/terms-of-service">Terms of Service</Link>

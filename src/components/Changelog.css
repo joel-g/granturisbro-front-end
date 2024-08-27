@@ -1,0 +1,71 @@
+.changelog {
+    margin-top: 20px;
+    border-top: 1px solid #eaeaea;
+    padding-top: 20px;
+}
+
+.changelog-toggle {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.changelog-toggle:hover {
+    background-color: #2980b9;
+}
+
+.changelog-content {
+    margin-top: 20px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.changelog-entry {
+    margin-bottom: 20px;
+}
+
+.changelog-entry h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.changelog-entry ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.changelog-entry li {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+/* Dark mode styles */
+.dark .changelog {
+    border-top-color: #4a5568;
+}
+
+.dark .changelog-toggle {
+    background-color: #4a5568;
+}
+
+.dark .changelog-toggle:hover {
+    background-color: #2d3748;
+}
+
+.dark .changelog-content {
+    background-color: #2d3748;
+}
+
+.dark .changelog-entry h3 {
+    color: #e2e8f0;
+}
+
+.dark .changelog-entry li {
+    color: #a0aec0;
+}
