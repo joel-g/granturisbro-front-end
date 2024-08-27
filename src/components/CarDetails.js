@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { ThemeContext } from '../contexts/ThemeContext';
 import './CarDetails.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarDetails() {
+  const { theme } = useContext(ThemeContext);
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +30,7 @@ function CarDetails() {
   const formatRewardInfo = (rewardFrom) => {
     if (!rewardFrom) return null;
     const [type, ...details] = rewardFrom.split(';');
-    
+
     const capitalizeWords = (str) => {
       return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
@@ -36,7 +38,7 @@ function CarDetails() {
     const formatType = (type) => {
       return type === 'menubook' ? 'Menu Book' : capitalizeWords(type);
     };
-    
+
     const getEmojiForMedal = (detail) => {
       if (detail.toLowerCase().includes('bronze')) return '🥉';
       if (detail.toLowerCase().includes('gold')) return '🥇';
@@ -67,9 +69,9 @@ function CarDetails() {
   if (!car) return <div className="not-found">Car not found</div>;
 
   return (
-    <div className="car-details-container">
+    <div className={`car-details-container ${theme}`}>
       <div className="car-details">
-        <div className="car-details-image" style={{backgroundImage: `url(${IMAGES_BASE_URL + "/large/" + car.image_url || 'default-car-image.jpg'})`}}></div>
+        <div className="car-details-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL + "/large/" + car.image_url || 'default-car-image.jpg'})` }}></div>
         <div className="car-details-info">
           <h1>{car.name}</h1>
           <div className="car-details-grid">

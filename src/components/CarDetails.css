@@ -4,12 +4,28 @@
   padding: 20px;
 }
 
+.car-details-container.light {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.car-details-container.dark {
+  background-color: #1a202c;
+  color: #f0f0f0;
+}
+
 .car-details {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark .car-details {
+  background-color: #2d3748;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
 }
 
 .car-details-image {
@@ -30,6 +46,10 @@
   color: #333;
 }
 
+.dark .car-details-info h1 {
+  color: #f0f0f0;
+}
+
 .car-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -42,11 +62,21 @@
   font-size: 1em;
 }
 
+.dark .car-details-grid p {
+  color: #a0aec0;
+}
+
 .reward-info-box {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark .reward-info-box {
+  background-color: #2d3748;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
 }
 
 .reward-info-box h3 {
@@ -55,10 +85,18 @@
   color: #333;
 }
 
+.dark .reward-info-box h3 {
+  color: #f0f0f0;
+}
+
 .reward-info-box p {
   margin: 10px 0;
   color: #666;
   font-size: 1em;
+}
+
+.dark .reward-info-box p {
+  color: #a0aec0;
 }
 
 .loading, .error, .not-found {
@@ -68,8 +106,16 @@
   color: #666;
 }
 
+.dark .loading, .dark .error, .dark .not-found {
+  color: #a0aec0;
+}
+
 .error {
   color: #d32f2f;
+}
+
+.dark .error {
+  color: #f56565;
 }
 
 @media (max-width: 768px) {
@@ -111,11 +157,19 @@
   border-top: 1px solid #eaeaea;
 }
 
+.dark .footer {
+  border-top-color: #4a5568;
+}
+
 .footer a {
   margin: 0 10px;
   color: #666;
   text-decoration: none;
   font-size: 14px;
+}
+
+.dark .footer a {
+  color: #a0aec0;
 }
 
 .footer a:hover {
