@@ -38,10 +38,16 @@ export const AuthProvider = ({ children }) => {
                     setUser(data.user);
                 } else {
                     localStorage.removeItem('auth_token');
+                    setUser(null);
                 }
+            } else {
+                localStorage.removeItem('auth_token');
+                setUser(null);
             }
         } catch (error) {
             console.error('Error checking auth status:', error);
+            localStorage.removeItem('auth_token');
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, checkAuthStatus }}>
             {children}
         </AuthContext.Provider>
     );

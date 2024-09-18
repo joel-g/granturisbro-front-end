@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,7 +6,11 @@ import './Header.css';
 
 function Header() {
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const { user, loading, login, logout } = useAuth();
+    const { user, loading, login, logout, checkAuthStatus } = useAuth();
+
+    useEffect(() => {
+        checkAuthStatus();
+    }, [checkAuthStatus]);
 
     return (
         <header className="app-header">
