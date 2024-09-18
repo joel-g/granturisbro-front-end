@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
 
 function Header() {
     const { theme, toggleTheme } = useContext(ThemeContext);
+    const { user, loading, login, logout } = useAuth();
 
     return (
         <header className="app-header">
@@ -13,6 +15,19 @@ function Header() {
                 <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
+                {!loading && (
+                    user ? (
+                        <div className="user-info">
+                            {user.google_picture && (
+                                <img src={user.google_picture} alt={user.name} className="user-avatar" />
+                            )}
+                            <span className="user-name">{user.name}</span>
+                            <button onClick={logout} className="logout-button">Log Out</button>
+                        </div>
+                    ) : (
+                        <button onClick={login} className="login-button">Login with Google</button>
+                    )
+                )}
                 <a 
                     href="https://x.com/joelatwar" 
                     target="_blank" 

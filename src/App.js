@@ -7,6 +7,7 @@ import CarDetails from './components/CarDetails';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import './App.css';
+import { AuthProvider } from './contexts/AuthContext';
 
 function AppContent() {
   const { theme } = useContext(ThemeContext);
@@ -32,9 +33,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
