@@ -8,7 +8,7 @@ import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarList() {
     const { theme } = useContext(ThemeContext);
-    const { user, userCars, fetchUserCars, addCarToCollection, removeCarFromCollection } = useAuth();
+    const { user, userCars, addCarToCollection, removeCarFromCollection, fetchUserCars } = useAuth();
     const [cars, setCars] = useState([]);
     const [filteredCars, setFilteredCars] = useState([]);
     const [loading, setLoading] = useState(true);

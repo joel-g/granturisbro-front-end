@@ -15,10 +15,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
-                credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
+                credentials: 'include', // This is crucial for including cookies
             });
             if (response.ok) {
                 const data = await response.json();
@@ -26,18 +23,15 @@ export const AuthProvider = ({ children }) => {
                     setUser(data.user);
                     await fetchUserCars();
                 } else {
-                    localStorage.removeItem('auth_token');
                     setUser(null);
                     setUserCars([]);
                 }
             } else {
-                localStorage.removeItem('auth_token');
                 setUser(null);
                 setUserCars([]);
             }
         } catch (error) {
             console.error('Error checking auth status:', error);
-            localStorage.removeItem('auth_token');
             setUser(null);
             setUserCars([]);
         } finally {
@@ -47,31 +41,13 @@ export const AuthProvider = ({ children }) => {
     }, [authChecked]);
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const authError = params.get('auth_error');
-
-        if (token) {
-            localStorage.setItem('auth_token', token);
-            window.history.replaceState({}, document.title, window.location.pathname);
-            checkAuthStatus();
-        } else if (authError) {
-            console.error('Authentication error:', authError);
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setAuthChecked(true);
-            setLoading(false);
-        } else {
-            checkAuthStatus();
-        }
+        checkAuthStatus();
     }, [checkAuthStatus]);
 
     const fetchUserCars = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
                 credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
             });
             if (response.ok) {
                 const cars = await response.json();
@@ -91,15 +67,11 @@ export const AuthProvider = ({ children }) => {
             const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
             });
 
             if (response.ok) {
                 setUser(null);
                 setUserCars([]);
-                localStorage.removeItem('auth_token');
                 setAuthChecked(false);
             } else {
                 console.error('Logout failed:', await response.text());
@@ -115,7 +87,6 @@ export const AuthProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 },
                 body: JSON.stringify({ carId }),
                 credentials: 'include'
@@ -136,9 +107,6 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/user/cars/${carId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                },
                 credentials: 'include'
             });
 
