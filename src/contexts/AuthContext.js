@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext();
@@ -6,25 +6,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
 
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const authError = params.get('auth_error');
-
-        if (token) {
-            localStorage.setItem('auth_token', token);
-            window.history.replaceState({}, document.title, window.location.pathname);
-            checkAuthStatus();
-        } else if (authError) {
-            console.error('Authentication error:', authError);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            checkAuthStatus();
-        }
-    }, []);
-
-    const checkAuthStatus = async () => {
+    const checkAuthStatus = useCallback(async () => {
+        if (authChecked) return;
+        
+        setLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
                 credentials: 'include',
@@ -50,8 +37,28 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
         } finally {
             setLoading(false);
+            setAuthChecked(true);
         }
-    };
+    }, [authChecked]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const authError = params.get('auth_error');
+
+        if (token) {
+            localStorage.setItem('auth_token', token);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            checkAuthStatus();
+        } else if (authError) {
+            console.error('Authentication error:', authError);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setAuthChecked(true);
+            setLoading(false);
+        } else {
+            checkAuthStatus();
+        }
+    }, [checkAuthStatus]);
 
     const login = () => {
         window.location.href = `${API_BASE_URL}/api/auth/google/login`;
@@ -68,6 +75,7 @@ export const AuthProvider = ({ children }) => {
             });
             setUser(null);
             localStorage.removeItem('auth_token');
+            setAuthChecked(false);
         } catch (error) {
             console.error('Error logging out:', error);
         }
