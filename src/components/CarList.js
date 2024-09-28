@@ -8,7 +8,7 @@ import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarList() {
     const { theme } = useContext(ThemeContext);
-    const { user, userCars, addCarToCollection, removeCarFromCollection, fetchUserCars } = useAuth();
+    const { user, userCars, fetchUserCars, addCarToCollection, removeCarFromCollection } = useAuth();
     const [cars, setCars] = useState([]);
     const [filteredCars, setFilteredCars] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,16 +30,21 @@ function CarList() {
         search: getParamValue('search'),
         sortBy: getParamValue('sortBy'),
         sortOrder: getParamValue('sortOrder') || 'asc',
-        reward: getParamValue('reward')
+        reward: getParamValue('reward'),
+        ownership: user ? (getParamValue('ownership') || 'all') : 'all',
     });
+
+    const [loadingCars, setLoadingCars] = useState({});
 
     const updateURL = useCallback(() => {
         const params = new URLSearchParams();
         Object.entries(filters).forEach(([key, value]) => {
-            if (value) params.append(key, value);
+            if (value && (key !== 'ownership' || user)) {
+                params.append(key, value);
+            }
         });
         setSearchParams(params);
-    }, [filters, setSearchParams]);
+    }, [filters, setSearchParams, user]);
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -69,56 +74,62 @@ function CarList() {
         fetchCars();
     }, []);
 
-    useEffect(() => {
-        const applyFilters = () => {
-            let filtered = cars;
-            if (filters.country) {
-                filtered = filtered.filter(car => car.country === filters.country);
+    const applyFilters = useCallback(() => {
+        let filtered = cars;
+        if (filters.country) {
+            filtered = filtered.filter(car => car.country === filters.country);
+        }
+        if (filters.manufacturer) {
+            filtered = filtered.filter(car => car.manufacturer === filters.manufacturer);
+        }
+        if (filters.availability) {
+            filtered = filtered.filter(car => car.availability === filters.availability);
+        }
+        if (filters.category) {
+            filtered = filtered.filter(car => car.category === filters.category);
+        }
+        if (filters.search) {
+            filtered = filtered.filter(car => 
+                car.name.toLowerCase().includes(filters.search.toLowerCase())
+            );
+        }
+        if (filters.reward) {
+            switch (filters.reward) {
+                case 'not_available':
+                    filtered = filtered.filter(car => !car.reward_from);
+                    break;
+                case 'any_reward':
+                    filtered = filtered.filter(car => car.reward_from);
+                    break;
+                default:
+                    filtered = filtered.filter(car => 
+                        car.reward_from && car.reward_from.split(';')[0] === filters.reward
+                    );
             }
-            if (filters.manufacturer) {
-                filtered = filtered.filter(car => car.manufacturer === filters.manufacturer);
-            }
-            if (filters.availability) {
-                filtered = filtered.filter(car => car.availability === filters.availability);
-            }
-            if (filters.category) {
-                filtered = filtered.filter(car => car.category === filters.category);
-            }
-            if (filters.search) {
-                filtered = filtered.filter(car => 
-                    car.name.toLowerCase().includes(filters.search.toLowerCase())
-                );
-            }
-            if (filters.reward) {
-                switch (filters.reward) {
-                    case 'not_available':
-                        filtered = filtered.filter(car => !car.reward_from);
-                        break;
-                    case 'any_reward':
-                        filtered = filtered.filter(car => car.reward_from);
-                        break;
-                    default:
-                        filtered = filtered.filter(car => 
-                            car.reward_from && car.reward_from.split(';')[0] === filters.reward
-                        );
-                }
-            }
-            
-            if (filters.sortBy) {
-                filtered = filtered.filter(car => car[filters.sortBy] != null);
-                filtered.sort((a, b) => {
-                    if (a[filters.sortBy] < b[filters.sortBy]) return filters.sortOrder === 'asc' ? -1 : 1;
-                    if (a[filters.sortBy] > b[filters.sortBy]) return filters.sortOrder === 'asc' ? 1 : -1;
-                    return 0;
-                });
-            }
-            
-            setFilteredCars(filtered);
-        };
+        }
+        if (user && filters.ownership !== 'all') {
+            const isOwned = filters.ownership === 'owned';
+            filtered = filtered.filter(car => 
+                isOwned === userCars.some(userCar => userCar.id === car.id)
+            );
+        }
+        
+        if (filters.sortBy) {
+            filtered = filtered.filter(car => car[filters.sortBy] != null);
+            filtered.sort((a, b) => {
+                if (a[filters.sortBy] < b[filters.sortBy]) return filters.sortOrder === 'asc' ? -1 : 1;
+                if (a[filters.sortBy] > b[filters.sortBy]) return filters.sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+        
+        setFilteredCars(filtered);
+    }, [cars, filters, userCars, user]);
 
+    useEffect(() => {
         applyFilters();
         updateURL();
-    }, [cars, filters, updateURL]);
+    }, [cars, filters, userCars, applyFilters, updateURL]);
 
     const handleFilterChange = (filterName, value) => {
         setFilters(prevFilters => {
@@ -152,13 +163,16 @@ function CarList() {
             search: '',
             sortBy: '',
             sortOrder: 'asc',
-            reward: ''
+            reward: '',
+            ownership: 'all'
         });
         navigate('', { replace: true });
     };
 
     const toggleUserCar = async (carId) => {
         if (!user) return;
+
+        setLoadingCars(prev => ({ ...prev, [carId]: true }));
 
         const isOwned = userCars.some(car => car.id === carId);
         try {
@@ -170,6 +184,8 @@ function CarList() {
             await fetchUserCars();
         } catch (error) {
             console.error('Error updating user car:', error);
+        } finally {
+            setLoadingCars(prev => ({ ...prev, [carId]: false }));
         }
     };
 
@@ -241,6 +257,18 @@ function CarList() {
                         <option value="any_reward">Any Reward Type</option>
                         <option value="not_available">Not Available from Reward</option>
                     </select>
+                    {user && (
+                        <div className="ownership-filter">
+                            <select 
+                                value={filters.ownership}
+                                onChange={(e) => handleFilterChange('ownership', e.target.value)}
+                            >
+                                <option value="all">All Cars</option>
+                                <option value="owned">Owned Cars</option>
+                                <option value="not_owned">Not Owned Cars</option>
+                            </select>
+                        </div>
+                    )}
                     <select onChange={handleSortChange} value={`${filters.sortBy}-${filters.sortOrder}`}>
                         <option value="">Sort by...</option>
                         <option value="pp-asc">PP (Low to High)</option>
@@ -284,13 +312,17 @@ function CarList() {
                             </Link>
                             {user && (
                                 <button 
-                                    className="toggle-ownership"
+                                    className={`toggle-ownership ${isOwned ? 'remove' : 'add'} ${loadingCars[car.id] ? 'loading' : ''}`}
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        toggleUserCar(car.id);
+                                        if (!loadingCars[car.id]) {
+                                            toggleUserCar(car.id);
+                                        }
                                     }}
+                                    disabled={loadingCars[car.id]}
+                                    title={isOwned ? "Remove from My Collection" : "Add to My Collection"}
                                 >
-                                    {isOwned ? '−' : '+'}
+                                    {loadingCars[car.id] ? '' : (isOwned ? '−' : '+')}
                                 </button>
                             )}
                         </div>
