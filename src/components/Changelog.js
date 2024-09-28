@@ -4,8 +4,9 @@ import './Changelog.css';
 
 const changelogData = [
     {
-        date: '2024-09-028',
+        date: '2024-09-28',
         changes: [
+            'Beta users can add and remove cars from their collection and filter by collection status',
             'Beta users can now log in and out with Google',]
     },
     {
