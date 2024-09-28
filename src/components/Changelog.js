@@ -4,6 +4,11 @@ import './Changelog.css';
 
 const changelogData = [
     {
+        date: '2024-09-028',
+        changes: [
+            'Beta users can now log in and out with Google',]
+    },
+    {
         date: '2024-08-27',
         changes: [
             'Added dark mode support',

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import axios from 'axios';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import Changelog from './Changelog'; 
 import './CarList.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarList() {
     const { theme } = useContext(ThemeContext);
+    const { user, userCars, fetchUserCars, addCarToCollection, removeCarFromCollection } = useAuth();
     const [cars, setCars] = useState([]);
     const [filteredCars, setFilteredCars] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,17 +44,22 @@ function CarList() {
     useEffect(() => {
         const fetchCars = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/cars`);
-                setCars(response.data);
-                
-                const uniqueCountries = [...new Set(response.data.map(car => car.country))].sort();
-                const uniqueManufacturers = [...new Set(response.data.map(car => car.manufacturer))].sort();
-                const uniqueCategories = [...new Set(response.data.map(car => car.category))].sort();
-                
-                setCountries(uniqueCountries);
-                setManufacturers(uniqueManufacturers);
-                setCategories(uniqueCategories);
-                setLoading(false);
+                const response = await fetch(`${API_BASE_URL}/api/cars`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setCars(data);
+                    
+                    const uniqueCountries = [...new Set(data.map(car => car.country))].sort();
+                    const uniqueManufacturers = [...new Set(data.map(car => car.manufacturer))].sort();
+                    const uniqueCategories = [...new Set(data.map(car => car.category))].sort();
+                    
+                    setCountries(uniqueCountries);
+                    setManufacturers(uniqueManufacturers);
+                    setCategories(uniqueCategories);
+                    setLoading(false);
+                } else {
+                    throw new Error('Failed to fetch cars');
+                }
             } catch (err) {
                 setError('Error fetching cars');
                 setLoading(false);
@@ -118,7 +124,6 @@ function CarList() {
         setFilters(prevFilters => {
             const newFilters = { ...prevFilters, [filterName]: value };
             
-            // Make country and manufacturer mutually exclusive
             if (filterName === 'country' && value !== '') {
                 newFilters.manufacturer = '';
             } else if (filterName === 'manufacturer' && value !== '') {
@@ -150,6 +155,22 @@ function CarList() {
             reward: ''
         });
         navigate('', { replace: true });
+    };
+
+    const toggleUserCar = async (carId) => {
+        if (!user) return;
+
+        const isOwned = userCars.some(car => car.id === carId);
+        try {
+            if (isOwned) {
+                await removeCarFromCollection(carId);
+            } else {
+                await addCarToCollection(carId);
+            }
+            await fetchUserCars();
+        } catch (error) {
+            console.error('Error updating user car:', error);
+        }
     };
 
     if (loading) return <div className="loading">Loading...</div>;
@@ -235,30 +256,46 @@ function CarList() {
                 </div>
             </div>
             <div className="car-grid">
-                {filteredCars.map(car => (
-                    <Link to={`/car/${car.id}`} key={car.id} className="car-card">
-                        <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
-                        <div className="car-info">
-                            <h2>{car.name}</h2>
-                            {car.manufacturer && <p>{car.manufacturer}</p>}
-                            {car.year && <p>{car.year}</p>}
-                            {car.country && <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
-                            <div className="car-specs">
-                                {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
-                                {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
-                                {car.weight && <p><strong>Weight:</strong> {car.weight} lb</p>}
-                            </div>
-                            {car.reward_from && (
-                                <span 
-                                    className="reward-indicator" 
-                                    title="This car can be won as a reward"
+                {filteredCars.map(car => {
+                    const isOwned = userCars.some(userCar => userCar.id === car.id);
+                    return (
+                        <div key={car.id} className={`car-card ${isOwned ? 'owned' : ''}`}>
+                            <Link to={`/car/${car.id}`} className="car-link">
+                                <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
+                                <div className="car-info">
+                                    <h2>{car.name}</h2>
+                                    {car.manufacturer && <p>{car.manufacturer}</p>}
+                                    {car.year && <p>{car.year}</p>}
+                                    {car.country && <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
+                                    <div className="car-specs">
+                                        {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
+                                        {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
+                                        {car.weight && <p><strong>Weight:</strong> {car.weight} lb</p>}
+                                    </div>
+                                    {car.reward_from && (
+                                        <span 
+                                            className="reward-indicator" 
+                                            title="This car can be won as a reward"
+                                        >
+                                            🏆
+                                        </span>
+                                    )}
+                                </div>
+                            </Link>
+                            {user && (
+                                <button 
+                                    className="toggle-ownership"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        toggleUserCar(car.id);
+                                    }}
                                 >
-                                    🏆
-                                </span>
+                                    {isOwned ? '−' : '+'}
+                                </button>
                             )}
                         </div>
-                    </Link>
-                ))}
+                    );
+                })}
             </div>
             <Changelog />
             <footer className="footer">

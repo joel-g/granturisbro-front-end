@@ -264,3 +264,29 @@ h1 {
 .footer a:hover {
   text-decoration: underline;
 }
+
+.car-card.owned {
+  background-color: rgba(0, 128, 0, 0.1);
+}
+
+.toggle-ownership {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-ownership:hover {
+  background-color: #2980b9;
+}

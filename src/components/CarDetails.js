@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import './CarDetails.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
 function CarDetails() {
   const { theme } = useContext(ThemeContext);
+  const { user, userCars, fetchUserCars, addCarToCollection, removeCarFromCollection } = useAuth();
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,17 +16,39 @@ function CarDetails() {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/cars/${id}`);
-        setCar(response.data);
-        setLoading(false);
+        const response = await fetch(`${API_BASE_URL}/api/cars/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCar(data);
+        } else {
+          setError('Error fetching car details');
+        }
       } catch (err) {
         setError('Error fetching car details');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchCar();
   }, [id]);
+
+  const isOwned = userCars.some(userCar => userCar.id === parseInt(id));
+
+  const toggleUserCar = async () => {
+    if (!user) return;
+
+    try {
+      if (isOwned) {
+        await removeCarFromCollection(id);
+      } else {
+        await addCarToCollection(id);
+      }
+      await fetchUserCars();
+    } catch (error) {
+      console.error('Error updating user car:', error);
+    }
+  };
 
   const formatRewardInfo = (rewardFrom) => {
     if (!rewardFrom) return null;
@@ -69,11 +92,19 @@ function CarDetails() {
   if (!car) return <div className="not-found">Car not found</div>;
 
   return (
-    <div className={`car-details-container ${theme}`}>
+    <div className={`car-details-container ${theme} ${isOwned ? 'owned' : ''}`}>
       <div className="car-details">
         <div className="car-details-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL + "/large/" + car.image_url || 'default-car-image.jpg'})` }}></div>
         <div className="car-details-info">
           <h1>{car.name}</h1>
+          {user && (
+            <button 
+              className="toggle-ownership"
+              onClick={toggleUserCar}
+            >
+              {isOwned ? 'Remove from My Collection' : 'Add to My Collection'}
+            </button>
+          )}
           <div className="car-details-grid">
             {car.manufacturer && <p><strong>Manufacturer:</strong> {car.manufacturer}</p>}
             {car.country && <p><strong>Country:</strong> {COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
