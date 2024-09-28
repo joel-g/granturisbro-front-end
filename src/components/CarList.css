@@ -266,7 +266,7 @@ h1 {
 }
 
 .car-card.owned {
-  background-color: rgba(0, 128, 0, 0.15);
+  background-color: rgba(0, 128, 0, 0.10);
 }
 
 .toggle-ownership {
