@@ -66,20 +66,25 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await fetch(`${API_BASE_URL}/api/auth/logout`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
-            });
+          const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            }
+          });
+      
+          if (response.ok) {
             setUser(null);
             localStorage.removeItem('auth_token');
             setAuthChecked(false);
+          } else {
+            console.error('Logout failed:', await response.text());
+          }
         } catch (error) {
-            console.error('Error logging out:', error);
+          console.error('Error logging out:', error);
         }
-    };
+      };
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout, checkAuthStatus }}>
