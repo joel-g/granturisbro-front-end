@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import Changelog from './Changelog'; 
+import Changelog from './Changelog';
 import './CarList.css';
 import { API_BASE_URL, COUNTRY_FLAGS, IMAGES_BASE_URL } from '../config';
 
@@ -53,11 +53,11 @@ function CarList() {
                 if (response.ok) {
                     const data = await response.json();
                     setCars(data);
-                    
+
                     const uniqueCountries = [...new Set(data.map(car => car.country))].sort();
                     const uniqueManufacturers = [...new Set(data.map(car => car.manufacturer))].sort();
                     const uniqueCategories = [...new Set(data.map(car => car.category))].sort();
-                    
+
                     setCountries(uniqueCountries);
                     setManufacturers(uniqueManufacturers);
                     setCategories(uniqueCategories);
@@ -89,7 +89,7 @@ function CarList() {
             filtered = filtered.filter(car => car.category === filters.category);
         }
         if (filters.search) {
-            filtered = filtered.filter(car => 
+            filtered = filtered.filter(car =>
                 car.name.toLowerCase().includes(filters.search.toLowerCase())
             );
         }
@@ -102,18 +102,18 @@ function CarList() {
                     filtered = filtered.filter(car => car.reward_from);
                     break;
                 default:
-                    filtered = filtered.filter(car => 
+                    filtered = filtered.filter(car =>
                         car.reward_from && car.reward_from.split(';')[0] === filters.reward
                     );
             }
         }
         if (user && filters.ownership !== 'all') {
             const isOwned = filters.ownership === 'owned';
-            filtered = filtered.filter(car => 
+            filtered = filtered.filter(car =>
                 isOwned === userCars.some(userCar => userCar.id === car.id)
             );
         }
-        
+
         if (filters.sortBy) {
             filtered = filtered.filter(car => car[filters.sortBy] != null);
             filtered.sort((a, b) => {
@@ -122,7 +122,7 @@ function CarList() {
                 return 0;
             });
         }
-        
+
         setFilteredCars(filtered);
     }, [cars, filters, userCars, user]);
 
@@ -134,13 +134,13 @@ function CarList() {
     const handleFilterChange = (filterName, value) => {
         setFilters(prevFilters => {
             const newFilters = { ...prevFilters, [filterName]: value };
-            
+
             if (filterName === 'country' && value !== '') {
                 newFilters.manufacturer = '';
             } else if (filterName === 'manufacturer' && value !== '') {
                 newFilters.country = '';
             }
-            
+
             return newFilters;
         });
     };
@@ -203,8 +203,8 @@ function CarList() {
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="search-input"
                     />
-                    <select 
-                        value={filters.manufacturer} 
+                    <select
+                        value={filters.manufacturer}
                         onChange={(e) => handleFilterChange('manufacturer', e.target.value)}
                     >
                         <option value="">All Manufacturers</option>
@@ -212,8 +212,8 @@ function CarList() {
                             <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
                         ))}
                     </select>
-                    <select 
-                        value={filters.country} 
+                    <select
+                        value={filters.country}
                         onChange={(e) => handleFilterChange('country', e.target.value)}
                     >
                         <option value="">All Countries</option>
@@ -223,8 +223,8 @@ function CarList() {
                             </option>
                         ))}
                     </select>
-                    <select 
-                        value={filters.availability} 
+                    <select
+                        value={filters.availability}
                         onChange={(e) => handleFilterChange('availability', e.target.value)}
                         className="availability-select"
                     >
@@ -235,8 +235,8 @@ function CarList() {
                         <option value="Invitation Only">Invitation Only</option>
                         <option value="Gift">Gift</option>
                     </select>
-                    <select 
-                        value={filters.category} 
+                    <select
+                        value={filters.category}
                         onChange={(e) => handleFilterChange('category', e.target.value)}
                         className="category-select"
                     >
@@ -245,8 +245,8 @@ function CarList() {
                             <option key={category} value={category}>{category}</option>
                         ))}
                     </select>
-                    <select 
-                        value={filters.reward} 
+                    <select
+                        value={filters.reward}
                         onChange={(e) => handleFilterChange('reward', e.target.value)}
                         className="reward-select"
                     >
@@ -258,7 +258,7 @@ function CarList() {
                         <option value="not_available">Not Available from Reward</option>
                     </select>
                     {user && (
-                        <select 
+                        <select
                             value={filters.ownership}
                             onChange={(e) => handleFilterChange('ownership', e.target.value)}
                             className="ownership-select"
@@ -289,7 +289,7 @@ function CarList() {
                     return (
                         <div key={car.id} className="car-card">
                             <Link to={`/car/${car.id}`} className="car-link">
-                                <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
+                                <div className="car-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})` }}></div>
                                 <div className="car-info">
                                     <h2>{car.name}</h2>
                                     {car.manufacturer && <p>{car.manufacturer}</p>}
@@ -301,8 +301,8 @@ function CarList() {
                                         {car.weight && <p><strong>Weight:</strong> {car.weight} lb</p>}
                                     </div>
                                     {car.reward_from && (
-                                        <span 
-                                            className="reward-indicator" 
+                                        <span
+                                            className="reward-indicator"
                                             title="This car can be won as a reward"
                                         >
                                             🏆
@@ -311,12 +311,12 @@ function CarList() {
                                 </div>
                             </Link>
                             {user && (
-                                <label className={`ownership-checkbox ${isLoading ? 'loading' : ''}`}>
-                                    <input 
+                                <label className={`ownership-checkbox ${loadingCars[car.id] ? 'loading' : ''}`}>
+                                    <input
                                         type="checkbox"
                                         checked={isOwned}
                                         onChange={() => toggleUserCar(car.id)}
-                                        disabled={isLoading}
+                                        disabled={loadingCars[car.id]}
                                     />
                                     <span className="checkmark"></span>
                                 </label>
