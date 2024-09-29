@@ -263,7 +263,7 @@ function CarList() {
                             onChange={(e) => handleFilterChange('ownership', e.target.value)}
                             className="ownership-select"
                         >
-                            <option value="all">All Owned Statuses</option>
+                            <option value="all">All Cars</option>
                             <option value="owned">Owned Cars</option>
                             <option value="not_owned">Not Owned Cars</option>
                         </select>
@@ -285,6 +285,7 @@ function CarList() {
             <div className="car-grid">
                 {filteredCars.map(car => {
                     const isOwned = userCars.some(userCar => userCar.id === car.id);
+                    const isLoading = loadingCars[car.id];
                     return (
                         <div key={car.id} className="car-card">
                             <Link to={`/car/${car.id}`} className="car-link">
@@ -310,12 +311,12 @@ function CarList() {
                                 </div>
                             </Link>
                             {user && (
-                                <label className="ownership-checkbox">
+                                <label className={`ownership-checkbox ${isLoading ? 'loading' : ''}`}>
                                     <input 
                                         type="checkbox"
                                         checked={isOwned}
                                         onChange={() => toggleUserCar(car.id)}
-                                        disabled={loadingCars[car.id]}
+                                        disabled={isLoading}
                                     />
                                     <span className="checkmark"></span>
                                 </label>
