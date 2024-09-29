@@ -128,7 +128,6 @@ h1 {
   text-decoration: none;
   color: inherit;
   position: relative;
-  transition: background-color 0.3s ease;
 }
 
 .dark .car-card {
@@ -189,6 +188,79 @@ h1 {
   bottom: 30px;
   right: 10px;
   font-size: 1.2em;
+}
+
+/* Ownership checkbox styles */
+.ownership-checkbox {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+}
+
+.ownership-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: transparent;
+  border: 2px solid #000;
+  border-radius: 4px;
+}
+
+.dark .checkmark {
+  border-color: #fff;
+}
+
+.ownership-checkbox:hover input ~ .checkmark {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark .ownership-checkbox:hover input ~ .checkmark {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ownership-checkbox input:checked ~ .checkmark {
+  background-color: #000;
+}
+
+.dark .ownership-checkbox input:checked ~ .checkmark {
+  background-color: #fff;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.ownership-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.ownership-checkbox .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.dark .ownership-checkbox .checkmark:after {
+  border-color: #000;
 }
 
 @media (max-width: 768px) {
@@ -263,85 +335,4 @@ h1 {
 
 .footer a:hover {
   text-decoration: underline;
-}
-
-.car-card.owned {
-  background-color: rgba(0, 128, 0, 0.10);
-}
-
-.toggle-ownership {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: none;
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.toggle-ownership.add {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.toggle-ownership.remove {
-  background-color: #36bef4;
-  color: white;
-}
-
-.toggle-ownership:hover {
-  opacity: 0.9;
-}
-
-.toggle-ownership:active {
-  transform: scale(0.95);
-}
-
-.toggle-ownership.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.toggle-ownership.loading::after {
-  content: "";
-  width: 16px;
-  height: 16px;
-  border: 2px solid #ffffff;
-  border-top: 2px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.ownership-filter {
-  margin-right: 10px;
-}
-
-.ownership-filter select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: white;
-  font-size: 14px;
-}
-
-/* Adjustments for dark mode */
-.dark .car-card.owned {
-  background-color: rgba(0, 128, 0, 0.25);
-}
-
-.dark .ownership-filter select {
-  background-color: #333;
-  color: white;
-  border-color: #555;
 }

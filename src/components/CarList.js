@@ -258,16 +258,15 @@ function CarList() {
                         <option value="not_available">Not Available from Reward</option>
                     </select>
                     {user && (
-                        <div className="ownership-filter">
-                            <select 
-                                value={filters.ownership}
-                                onChange={(e) => handleFilterChange('ownership', e.target.value)}
-                            >
-                                <option value="all">All Cars</option>
-                                <option value="owned">Owned Cars</option>
-                                <option value="not_owned">Not Owned Cars</option>
-                            </select>
-                        </div>
+                        <select 
+                            value={filters.ownership}
+                            onChange={(e) => handleFilterChange('ownership', e.target.value)}
+                            className="ownership-select"
+                        >
+                            <option value="all">All Owned Statuses</option>
+                            <option value="owned">Owned Cars</option>
+                            <option value="not_owned">Not Owned Cars</option>
+                        </select>
                     )}
                     <select onChange={handleSortChange} value={`${filters.sortBy}-${filters.sortOrder}`}>
                         <option value="">Sort by...</option>
@@ -287,7 +286,7 @@ function CarList() {
                 {filteredCars.map(car => {
                     const isOwned = userCars.some(userCar => userCar.id === car.id);
                     return (
-                        <div key={car.id} className={`car-card ${isOwned ? 'owned' : ''}`}>
+                        <div key={car.id} className="car-card">
                             <Link to={`/car/${car.id}`} className="car-link">
                                 <div className="car-image" style={{backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})`}}></div>
                                 <div className="car-info">
@@ -311,19 +310,15 @@ function CarList() {
                                 </div>
                             </Link>
                             {user && (
-                                <button 
-                                    className={`toggle-ownership ${isOwned ? 'remove' : 'add'} ${loadingCars[car.id] ? 'loading' : ''}`}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (!loadingCars[car.id]) {
-                                            toggleUserCar(car.id);
-                                        }
-                                    }}
-                                    disabled={loadingCars[car.id]}
-                                    title={isOwned ? "Remove from My Collection" : "Add to My Collection"}
-                                >
-                                    {loadingCars[car.id] ? '' : (isOwned ? '−' : '+')}
-                                </button>
+                                <label className="ownership-checkbox">
+                                    <input 
+                                        type="checkbox"
+                                        checked={isOwned}
+                                        onChange={() => toggleUserCar(car.id)}
+                                        disabled={loadingCars[car.id]}
+                                    />
+                                    <span className="checkmark"></span>
+                                </label>
                             )}
                         </div>
                     );
