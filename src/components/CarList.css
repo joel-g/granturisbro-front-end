@@ -249,6 +249,21 @@ h1 {
   display: block;
 }
 
+.ownership-checkbox .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.dark .ownership-checkbox .checkmark:after {
+  border-color: #000;
+}
+
+/* Loading animation for ownership checkbox */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -276,20 +291,6 @@ h1 {
 .dark .ownership-checkbox.loading .checkmark:before {
   border-color: #666;
   border-top-color: #fff;
-}
-
-.ownership-checkbox .checkmark:after {
-  left: 6px;
-  top: 2px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.dark .ownership-checkbox .checkmark:after {
-  border-color: #000;
 }
 
 @media (max-width: 768px) {
