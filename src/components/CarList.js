@@ -294,7 +294,7 @@ function CarList() {
                                     <h2>{car.name}</h2>
                                     {car.manufacturer && <p>{car.manufacturer}</p>}
                                     {car.year && <p>{car.year}</p>}
-                                    {car.country && <p>{COUNTRY_FLAGS[car.country] || ''} {car.country}</p>}
+                                    {car.country && <p>{COUNTRY_FLAGS[country] || ''} {car.country}</p>}
                                     <div className="car-specs">
                                         {car.price && <p><strong>Price:</strong> {car.price.toLocaleString()} Cr</p>}
                                         {car.pp && <p><strong>PP:</strong> {car.pp.toFixed(1)}</p>}
@@ -311,12 +311,12 @@ function CarList() {
                                 </div>
                             </Link>
                             {user && (
-                                <label className={`ownership-checkbox ${loadingCars[car.id] ? 'loading' : ''}`}>
+                                <label className={`ownership-checkbox ${isLoading ? 'loading' : ''}`}>
                                     <input
                                         type="checkbox"
                                         checked={isOwned}
                                         onChange={() => toggleUserCar(car.id)}
-                                        disabled={loadingCars[car.id]}
+                                        disabled={isLoading}
                                     />
                                     <span className="checkmark"></span>
                                 </label>
