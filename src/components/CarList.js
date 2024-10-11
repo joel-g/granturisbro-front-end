@@ -29,7 +29,7 @@ function CarList() {
         category: getParamValue('category'),
         search: getParamValue('search'),
         sortBy: getParamValue('sortBy'),
-        sortOrder: getParamValue('sortOrder') || 'asc',
+        sortOrder: getParamValue('sortOrder') || '',
         reward: getParamValue('reward'),
         ownership: user ? (getParamValue('ownership') || 'all') : 'all',
     });
@@ -39,7 +39,7 @@ function CarList() {
     const updateURL = useCallback(() => {
         const params = new URLSearchParams();
         Object.entries(filters).forEach(([key, value]) => {
-            if (value && (key !== 'ownership' || user)) {
+            if (value && value !== 'asc' && (key !== 'ownership' || user)) {
                 params.append(key, value);
             }
         });
@@ -117,8 +117,9 @@ function CarList() {
         if (filters.sortBy) {
             filtered = filtered.filter(car => car[filters.sortBy] != null);
             filtered.sort((a, b) => {
-                if (a[filters.sortBy] < b[filters.sortBy]) return filters.sortOrder === 'asc' ? -1 : 1;
-                if (a[filters.sortBy] > b[filters.sortBy]) return filters.sortOrder === 'asc' ? 1 : -1;
+                const order = filters.sortOrder || 'asc';
+                if (a[filters.sortBy] < b[filters.sortBy]) return order === 'asc' ? -1 : 1;
+                if (a[filters.sortBy] > b[filters.sortBy]) return order === 'asc' ? 1 : -1;
                 return 0;
             });
         }
