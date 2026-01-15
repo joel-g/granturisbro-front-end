@@ -1,53 +1,69 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { useUser, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+    const { user: clerkUser, isLoaded: clerkLoaded, isSignedIn } = useUser();
+    const { getToken } = useClerkAuth();
+
     const [user, setUser] = useState(null);
     const [userCars, setUserCars] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [authChecked, setAuthChecked] = useState(false);
 
-    const checkAuthStatus = useCallback(async () => {
-        if (authChecked) return;
-        
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
-                credentials: 'include', // This is crucial for including cookies
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.authenticated) {
-                    setUser(data.user);
-                    await fetchUserCars();
-                } else {
-                    setUser(null);
-                    setUserCars([]);
-                }
-            } else {
-                setUser(null);
-                setUserCars([]);
-            }
-        } catch (error) {
-            console.error('Error checking auth status:', error);
+    // Sync Clerk user with backend and get app-specific data
+    const syncUserWithBackend = useCallback(async () => {
+        if (!isSignedIn || !clerkUser) {
             setUser(null);
             setUserCars([]);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const token = await getToken();
+
+            // Sync user to backend (creates/updates user in D1)
+            const syncResponse = await fetch(`${API_BASE_URL}/api/auth/sync`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (syncResponse.ok) {
+                const userData = await syncResponse.json();
+                setUser({
+                    id: userData.id,
+                    email: clerkUser.primaryEmailAddress?.emailAddress,
+                    name: clerkUser.fullName || clerkUser.firstName,
+                    google_picture: clerkUser.imageUrl,
+                    role: userData.role,
+                });
+                await fetchUserCars(token);
+            }
+        } catch (error) {
+            console.error('Error syncing user with backend:', error);
         } finally {
             setLoading(false);
-            setAuthChecked(true);
         }
-    }, [authChecked]);
+    }, [isSignedIn, clerkUser, getToken]);
 
     useEffect(() => {
-        checkAuthStatus();
-    }, [checkAuthStatus]);
+        if (clerkLoaded) {
+            syncUserWithBackend();
+        }
+    }, [clerkLoaded, isSignedIn, syncUserWithBackend]);
 
-    const fetchUserCars = async () => {
+    const fetchUserCars = async (token) => {
         try {
+            const authToken = token || await getToken();
             const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
-                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                },
             });
             if (response.ok) {
                 const cars = await response.json();
@@ -58,38 +74,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = () => {
-        window.location.href = `${API_BASE_URL}/api/auth/google/login`;
-    };
-
-    const logout = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
-                method: 'POST',
-                credentials: 'include',
-            });
-
-            if (response.ok) {
-                setUser(null);
-                setUserCars([]);
-                setAuthChecked(false);
-            } else {
-                console.error('Logout failed:', await response.text());
-            }
-        } catch (error) {
-            console.error('Error logging out:', error);
-        }
-    };
-
     const addCarToCollection = async (carId) => {
         try {
+            const token = await getToken();
             const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ carId }),
-                credentials: 'include'
             });
 
             if (response.ok) {
@@ -105,9 +99,12 @@ export const AuthProvider = ({ children }) => {
 
     const removeCarFromCollection = async (carId) => {
         try {
+            const token = await getToken();
             const response = await fetch(`${API_BASE_URL}/api/user/cars/${carId}`, {
                 method: 'DELETE',
-                credentials: 'include'
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
             if (response.ok) {
@@ -125,13 +122,11 @@ export const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             user,
             userCars,
-            loading,
-            login,
-            logout,
-            checkAuthStatus,
+            loading: !clerkLoaded || loading,
             fetchUserCars,
             addCarToCollection,
-            removeCarFromCollection
+            removeCarFromCollection,
+            isSignedIn,
         }}>
             {children}
         </AuthContext.Provider>

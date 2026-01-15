@@ -1,12 +1,14 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { SignInButton, SignOutButton, useUser } from '@clerk/clerk-react';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
 
 function Header() {
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const { user, loading, login, logout } = useAuth();
+    const { isSignedIn, user: clerkUser, isLoaded } = useUser();
+    const { loading } = useAuth();
 
     return (
         <header className="app-header">
@@ -15,22 +17,26 @@ function Header() {
                 <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
-                {!loading && (
-                    user ? (
+                {isLoaded && !loading && (
+                    isSignedIn ? (
                         <div className="user-info">
-                            {user.google_picture && (
-                                <img src={user.google_picture} alt={user.name} className="user-avatar" />
+                            {clerkUser?.imageUrl && (
+                                <img src={clerkUser.imageUrl} alt={clerkUser.fullName || clerkUser.firstName} className="user-avatar" />
                             )}
-                            <span className="user-name">{user.name}</span>
-                            <button onClick={logout} className="logout-button">Log Out</button>
+                            <span className="user-name">{clerkUser?.fullName || clerkUser?.firstName}</span>
+                            <SignOutButton>
+                                <button className="logout-button">Log Out</button>
+                            </SignOutButton>
                         </div>
                     ) : (
-                        <button onClick={login} className="login-button">Login with Google</button>
+                        <SignInButton mode="modal">
+                            <button className="login-button">Sign In</button>
+                        </SignInButton>
                     )
                 )}
-                <a 
-                    href="https://x.com/joelatwar" 
-                    target="_blank" 
+                <a
+                    href="https://x.com/joelatwar"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="twitter-link"
                     title="Follow for updates and to submit corrections"
