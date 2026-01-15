@@ -12,6 +12,23 @@ export const AuthProvider = ({ children }) => {
     const [userCars, setUserCars] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const fetchUserCars = useCallback(async (token) => {
+        try {
+            const authToken = token || await getToken();
+            const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                },
+            });
+            if (response.ok) {
+                const cars = await response.json();
+                setUserCars(cars);
+            }
+        } catch (error) {
+            console.error('Error fetching user cars:', error);
+        }
+    }, [getToken]);
+
     // Sync Clerk user with backend and get app-specific data
     const syncUserWithBackend = useCallback(async () => {
         if (!isSignedIn || !clerkUser) {
@@ -49,30 +66,13 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [isSignedIn, clerkUser, getToken]);
+    }, [isSignedIn, clerkUser, getToken, fetchUserCars]);
 
     useEffect(() => {
         if (clerkLoaded) {
             syncUserWithBackend();
         }
     }, [clerkLoaded, isSignedIn, syncUserWithBackend]);
-
-    const fetchUserCars = async (token) => {
-        try {
-            const authToken = token || await getToken();
-            const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            });
-            if (response.ok) {
-                const cars = await response.json();
-                setUserCars(cars);
-            }
-        } catch (error) {
-            console.error('Error fetching user cars:', error);
-        }
-    };
 
     const addCarToCollection = async (carId) => {
         try {
