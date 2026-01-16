@@ -52,12 +52,12 @@ function Changelog() {
             {isOpen && (
                 <div className="changelog-content">
                     <h2>Recent Updates</h2>
-                    {changelogData.map((entry, index) => (
-                        <div key={index} className="changelog-entry">
+                    {changelogData.map((entry) => (
+                        <div key={entry.date} className="changelog-entry">
                             <h3>{entry.date}</h3>
                             <ul>
-                                {entry.changes.map((change, changeIndex) => (
-                                    <li key={changeIndex}>{change}</li>
+                                {entry.changes.map((change) => (
+                                    <li key={`${entry.date}-${change.slice(0, 20)}`}>{change}</li>
                                 ))}
                             </ul>
                         </div>

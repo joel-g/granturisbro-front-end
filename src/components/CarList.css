@@ -141,9 +141,13 @@ h1 {
 
 .car-image {
   height: 120px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.car-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .car-info {

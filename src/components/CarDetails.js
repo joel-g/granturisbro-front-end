@@ -94,7 +94,12 @@ function CarDetails() {
   return (
     <div className={`car-details-container ${theme} ${isOwned ? 'owned' : ''}`}>
       <div className="car-details">
-        <div className="car-details-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL + "/large/" + car.image_url || 'default-car-image.jpg'})` }}></div>
+        <div className="car-details-image">
+          <img
+            src={`${IMAGES_BASE_URL}/large/${car.image_url || 'default-car-image.jpg'}`}
+            alt={car.name}
+          />
+        </div>
         <div className="car-details-info">
           <h1>{car.name}</h1>
           {user && (

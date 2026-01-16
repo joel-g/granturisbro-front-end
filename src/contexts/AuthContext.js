@@ -11,6 +11,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userCars, setUserCars] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const clearError = useCallback(() => setError(null), []);
 
     const fetchUserCars = useCallback(async (token) => {
         try {
@@ -23,9 +26,12 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const cars = await response.json();
                 setUserCars(cars);
+            } else {
+                setError('Failed to load your car collection');
             }
-        } catch (error) {
-            console.error('Error fetching user cars:', error);
+        } catch (err) {
+            console.error('Error fetching user cars:', err);
+            setError('Failed to load your car collection');
         }
     }, [getToken]);
 
@@ -60,9 +66,12 @@ export const AuthProvider = ({ children }) => {
                     role: userData.role,
                 });
                 await fetchUserCars(token);
+            } else {
+                setError('Failed to sync your account');
             }
-        } catch (error) {
-            console.error('Error syncing user with backend:', error);
+        } catch (err) {
+            console.error('Error syncing user with backend:', err);
+            setError('Failed to connect to server');
         } finally {
             setLoading(false);
         }
@@ -75,6 +84,7 @@ export const AuthProvider = ({ children }) => {
     }, [clerkLoaded, isSignedIn, syncUserWithBackend]);
 
     const addCarToCollection = async (carId) => {
+        setError(null);
         try {
             const token = await getToken();
             const response = await fetch(`${API_BASE_URL}/api/user/cars`, {
@@ -87,17 +97,21 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.ok) {
-                await fetchUserCars();
+                await fetchUserCars(token);
             } else {
-                throw new Error('Failed to add car to collection');
+                const msg = 'Failed to add car to collection';
+                setError(msg);
+                throw new Error(msg);
             }
-        } catch (error) {
-            console.error('Error adding car to collection:', error);
-            throw error;
+        } catch (err) {
+            console.error('Error adding car to collection:', err);
+            if (!error) setError('Failed to add car to collection');
+            throw err;
         }
     };
 
     const removeCarFromCollection = async (carId) => {
+        setError(null);
         try {
             const token = await getToken();
             const response = await fetch(`${API_BASE_URL}/api/user/cars/${carId}`, {
@@ -108,13 +122,16 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.ok) {
-                await fetchUserCars();
+                await fetchUserCars(token);
             } else {
-                throw new Error('Failed to remove car from collection');
+                const msg = 'Failed to remove car from collection';
+                setError(msg);
+                throw new Error(msg);
             }
-        } catch (error) {
-            console.error('Error removing car from collection:', error);
-            throw error;
+        } catch (err) {
+            console.error('Error removing car from collection:', err);
+            if (!error) setError('Failed to remove car from collection');
+            throw err;
         }
     };
 
@@ -123,6 +140,8 @@ export const AuthProvider = ({ children }) => {
             user,
             userCars,
             loading: !clerkLoaded || loading,
+            error,
+            clearError,
             fetchUserCars,
             addCarToCollection,
             removeCarFromCollection,

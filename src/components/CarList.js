@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,9 +13,10 @@ function CarList() {
     const [filteredCars, setFilteredCars] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [countries, setCountries] = useState([]);
-    const [manufacturers, setManufacturers] = useState([]);
-    const [categories, setCategories] = useState([]);
+
+    const countries = useMemo(() => [...new Set(cars.map(car => car.country))].sort(), [cars]);
+    const manufacturers = useMemo(() => [...new Set(cars.map(car => car.manufacturer))].sort(), [cars]);
+    const categories = useMemo(() => [...new Set(cars.map(car => car.category))].sort(), [cars]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -53,14 +54,6 @@ function CarList() {
                 if (response.ok) {
                     const data = await response.json();
                     setCars(data);
-
-                    const uniqueCountries = [...new Set(data.map(car => car.country))].sort();
-                    const uniqueManufacturers = [...new Set(data.map(car => car.manufacturer))].sort();
-                    const uniqueCategories = [...new Set(data.map(car => car.category))].sort();
-
-                    setCountries(uniqueCountries);
-                    setManufacturers(uniqueManufacturers);
-                    setCategories(uniqueCategories);
                     setLoading(false);
                 } else {
                     throw new Error('Failed to fetch cars');
@@ -203,10 +196,12 @@ function CarList() {
                         value={filters.search}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="search-input"
+                        aria-label="Search cars by name"
                     />
                     <select
                         value={filters.manufacturer}
                         onChange={(e) => handleFilterChange('manufacturer', e.target.value)}
+                        aria-label="Filter by manufacturer"
                     >
                         <option value="">All Manufacturers</option>
                         {manufacturers.map(manufacturer => (
@@ -216,6 +211,7 @@ function CarList() {
                     <select
                         value={filters.country}
                         onChange={(e) => handleFilterChange('country', e.target.value)}
+                        aria-label="Filter by country"
                     >
                         <option value="">All Countries</option>
                         {countries.map(country => (
@@ -228,6 +224,7 @@ function CarList() {
                         value={filters.availability}
                         onChange={(e) => handleFilterChange('availability', e.target.value)}
                         className="availability-select"
+                        aria-label="Filter by availability"
                     >
                         <option value="">All Availabilities</option>
                         <option value="Brand Central">Brand Central</option>
@@ -240,6 +237,7 @@ function CarList() {
                         value={filters.category}
                         onChange={(e) => handleFilterChange('category', e.target.value)}
                         className="category-select"
+                        aria-label="Filter by category"
                     >
                         <option value="">All Categories</option>
                         {categories.map(category => (
@@ -250,6 +248,7 @@ function CarList() {
                         value={filters.reward}
                         onChange={(e) => handleFilterChange('reward', e.target.value)}
                         className="reward-select"
+                        aria-label="Filter by reward type"
                     >
                         <option value="">All Rewards</option>
                         <option value="license">License</option>
@@ -263,13 +262,18 @@ function CarList() {
                             value={filters.ownership}
                             onChange={(e) => handleFilterChange('ownership', e.target.value)}
                             className="ownership-select"
+                            aria-label="Filter by ownership"
                         >
                             <option value="all">All Cars</option>
                             <option value="owned">Owned Cars</option>
                             <option value="not_owned">Not Owned Cars</option>
                         </select>
                     )}
-                    <select onChange={handleSortChange} value={`${filters.sortBy}-${filters.sortOrder}`}>
+                    <select
+                        onChange={handleSortChange}
+                        value={`${filters.sortBy}-${filters.sortOrder}`}
+                        aria-label="Sort cars"
+                    >
                         <option value="">Sort by...</option>
                         <option value="pp-asc">PP (Low to High)</option>
                         <option value="pp-desc">PP (High to Low)</option>
@@ -290,7 +294,13 @@ function CarList() {
                     return (
                         <div key={car.id} className="car-card">
                             <Link to={`/car/${car.id}`} className="car-link">
-                                <div className="car-image" style={{ backgroundImage: `url(${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'})` }}></div>
+                                <div className="car-image">
+                                    <img
+                                        src={`${IMAGES_BASE_URL}/small/${car.image_url || 'default-car-image.jpg'}`}
+                                        alt={car.name}
+                                        loading="lazy"
+                                    />
+                                </div>
                                 <div className="car-info">
                                     <h2>{car.name}</h2>
                                     {car.manufacturer && <p>{car.manufacturer}</p>}
